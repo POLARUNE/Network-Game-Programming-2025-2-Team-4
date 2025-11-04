@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36518.9 d17.14
+VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeadSoccer", "HeadSoccer.vcxproj", "{C0EE9609-0F5D-4D70-B27B-5865BF2307D1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HeadSoccerServer", "HeadSoccerServer.vcxproj", "{C0EE9609-0F5D-4D70-B27B-5865BF2307D1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
