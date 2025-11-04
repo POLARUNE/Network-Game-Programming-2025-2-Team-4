@@ -1,5 +1,4 @@
 #include "..\Common.h"
-#include <direct.h>   // _getcwd(): 현재 작업 디렉터리 얻기
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
@@ -18,61 +17,18 @@ DWORD WINAPI ClientThread(LPVOID arg)
     printf("\n[TCP 서버] 클라이언트 접속 - IP 주소: %s, 포트 번호: %d\n",
         addr, ntohs(clientaddr.sin_port));
 
-    // 파일 이름 길이 수신
-    int nameLen;
-    retval = recv(client_sock, (char*)&nameLen, sizeof(int), MSG_WAITALL);
-    if (retval <= 0) { err_display("recv() - nameLen"); closesocket(client_sock); return 1; }
+    // 플레이어 준비 상태 수신
+    bool PlayerReady;
+    retval = recv(client_sock, (char*)&PlayerReady, sizeof(bool), MSG_WAITALL);
+	if (retval <= 0) { err_display("recv() - PlayerReady"); closesocket(client_sock); return 1; }
 
-    // 파일 이름 수신
-    char filename[MAX_PATH] = { 0 };
-    retval = recv(client_sock, filename, nameLen, MSG_WAITALL);
-    if (retval <= 0) { err_display("recv() - filename"); closesocket(client_sock); return 1; }
-    filename[nameLen] = '\0';
+	printf("[서버] 플레이어 준비 상태: %s\n", PlayerReady ? "준비 완료" : "준비 미완료");
 
-    // 파일 크기 수신
-    long long fileSize;
-    retval = recv(client_sock, (char*)&fileSize, sizeof(long long), MSG_WAITALL);
-    if (retval <= 0) { err_display("recv() - fileSize"); closesocket(client_sock); return 1; }
-
-    printf("[서버] 파일 이름: %s\n", filename);
-    printf("[서버] 파일 크기: %lld 바이트\n", fileSize);
-
-    char cwd[MAX_PATH];
-    _getcwd(cwd, sizeof(cwd));
-    printf("[서버] 저장 위치: %s\n", cwd);
-
-    FILE* fp = fopen(filename, "wb");
-    if (!fp) { perror("fopen()"); closesocket(client_sock); return 1; }
-
-    char buf[BUFSIZE];
-    long long totalRecv = 0;
-    int lastPercent = -1;
-
-    while (totalRecv < fileSize)
-    {
-        int bytesToRead = (int)min(BUFSIZE, fileSize - totalRecv);
-        retval = recv(client_sock, buf, bytesToRead, 0);
-        if (retval <= 0) break;
-
-        fwrite(buf, 1, retval, fp);
-        totalRecv += retval;
-
-        int percent = (int)((double)totalRecv / fileSize * 100);
-        if (percent != lastPercent) {
-            printf("\r[%s] 수신 중... %3d%% (%lld / %lld 바이트)",
-                addr, percent, totalRecv, fileSize);
-            fflush(stdout);
-            lastPercent = percent;
-        }
-    }
-
-    printf("\n[%s] 파일 수신 완료: %s (총 %lld 바이트)\n", addr, filename, totalRecv);
-
-    fclose(fp);
     closesocket(client_sock);
     printf("[%s] 클라이언트 종료\n", addr);
     return 0;
 }
+
 int main(void)
 {
     int retval;
