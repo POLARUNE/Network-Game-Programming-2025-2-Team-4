@@ -1,4 +1,6 @@
 #include "..\Common.h"
+#include "CHARACTER.h"
+#include "Korea.h"
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
