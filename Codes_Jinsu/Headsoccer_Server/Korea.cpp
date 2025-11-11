@@ -168,11 +168,11 @@ void Korea::Jump(int dir)
 
 Korea::~Korea()
 {
-	Head[0].Destroy();
-	Head[1].Destroy();
-	Body[0].Destroy();
-	Body[1].Destroy();
-	Body[2].Destroy();
-	Power.Destroy();
-	flag.Destroy();
+	//Head[0].Destroy();
+	//Head[1].Destroy();
+	//Body[0].Destroy();
+	//Body[1].Destroy();
+	//Body[2].Destroy();
+	//Power.Destroy();
+	//flag.Destroy();
 }

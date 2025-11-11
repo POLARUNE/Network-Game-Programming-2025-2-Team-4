@@ -76,8 +76,8 @@ void Character::ResetPos(int playerNum)
 
 Character::~Character()
 {
-	PowerGaugeL.Destroy();
-	PowerGaugeR.Destroy();
-	PowerGaugeFrameL.Destroy();
-	PowerGaugeFrameR.Destroy();
+	//PowerGaugeL.Destroy();
+	//PowerGaugeR.Destroy();
+	//PowerGaugeFrameL.Destroy();
+	//PowerGaugeFrameR.Destroy();
 }
