@@ -5,6 +5,8 @@
 #include "Canada.h"
 #include "Brazil.h"
 
+#pragma comment (lib, "msimg32.lib")
+
 #define SERVERIP	"127.0.0.1"
 #define SERVERPORT	9000
 #define BUFSIZE		128
@@ -42,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW, 0, 0, 1000, 740, NULL, (HMENU)NULL, hInstance, NULL);
 	ShowWindow(hWnd, nCmdShow);
 
-	while (GetMessage(&Message, 0, 0, 0)) {
+	while (GetMessage(&Message, NULL, 0, 0)) {
 		TranslateMessage(&Message);
 		DispatchMessage(&Message);
 	}
@@ -77,14 +79,49 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	PAINTSTRUCT ps;
 
+	static BOOL KeyBuffer[256] = { FALSE, };
+
 	switch (iMessage) {
 	case WM_CREATE:
 		GetClientRect(hWnd, &WinSize);
 		break;
+
+	case WM_KEYDOWN:
+		switch (wParam) {
+		case 'W':
+		case 'w':
+		case 'A':
+		case 'a':
+		case 'S':
+		case 's':
+		case 'D':
+		case 'd':
+			KeyBuffer[wParam] = TRUE;
+			break;
+		}
+		break;
+
+	case WM_KEYUP:
+		switch (wParam) {
+		case 'W':
+		case 'w':
+		case 'A':
+		case 'a':
+		case 'S':
+		case 's':
+		case 'D':
+		case 'd':
+			KeyBuffer[wParam] = FALSE;
+			break;
+		}
+		break;
+
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
+
 		EndPaint(hWnd, &ps);
 		break;
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
