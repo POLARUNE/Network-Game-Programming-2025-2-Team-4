@@ -12,6 +12,8 @@ TCHAR lpszClass[] = TEXT("HEAD SOCCER");
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
+RECT WinSize;
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	HWND hWnd;
@@ -72,6 +74,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 	switch (iMessage) {
 	case WM_CREATE:
+		GetClientRect(hWnd, &WinSize);
 		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
