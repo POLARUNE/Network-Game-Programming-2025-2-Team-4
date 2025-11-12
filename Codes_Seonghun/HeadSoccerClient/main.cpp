@@ -1,5 +1,10 @@
 #include "..\Common.h"
 
+#include "Character.h"
+#include "Korea.h"
+#include "Canada.h"
+#include "Brazil.h"
+
 #define SERVERIP	"127.0.0.1"
 #define SERVERPORT	9000
 #define BUFSIZE		128
