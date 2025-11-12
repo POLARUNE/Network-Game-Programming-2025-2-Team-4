@@ -1,27 +1,27 @@
-#include "Korea.h"
+#include "Canada.h"
 
 extern RECT WinSize;
 
-Korea::Korea(int playerNum) : Character()
+Canada::Canada(int playerNum) : Character()
 {
-	imgHead[0].Load(_T("Sprites\\Korea_Face_L.png"));
-	imgHead[1].Load(_T("Sprites\\Korea_Face_L.png"));
-	
+	imgHead[0].Load(_T("Sprites\\Canada_Face_L.png"));
+	imgHead[1].Load(_T("Sprites\\Canada_Face_L.png"));
+
 	imgBody[0].Load(_T("Sprites\\Body_Normal.png"));
 	imgBody[1].Load(_T("Sprites\\Body_Kick_L.png"));
 	imgBody[2].Load(_T("Sprites\\Body_Kick_R.png"));
-	
-	imgFlag.Load(_T("Sprites\\Korea_Flag.png"));
+
+	imgFlag.Load(_T("Sprites\\Canada_Flag.png"));
 
 	switch (playerNum) {
 	case 1:
 		xPos = 100;
-		// Power.Load(_T("sprite\\koreaPower_L.png"));
+		// Power.Load(_T("sprite\\CanadaPower_L.png"));
 		break;
 
 	case 2:
 		xPos = 875;
-		// Power.Load(_T("sprite\\koreaPower_R.png"));
+		// Power.Load(_T("sprite\\CanadaPower_R.png"));
 		break;
 	}
 
@@ -32,7 +32,7 @@ Korea::Korea(int playerNum) : Character()
 	power = 5;
 }
 
-void Korea::UI_Print(HDC hdc, int playerNum) const
+void Canada::UI_Print(HDC hdc, int playerNum) const
 {
 	HFONT hFont, oldFont;
 	TCHAR str[10];
@@ -69,7 +69,7 @@ void Korea::UI_Print(HDC hdc, int playerNum) const
 	DeleteObject(hFont);
 }
 
-void Korea::Draw(HDC hdc, int playerNum) const
+void Canada::Draw(HDC hdc, int playerNum) const
 {
 	switch (playerNum) {
 	case 1:
@@ -86,7 +86,7 @@ void Korea::Draw(HDC hdc, int playerNum) const
 	}
 }
 
-//void Korea::PowerShoot(HDC hdc, int playerNum, double xpos, double ypos)
+//void Canada::PowerShoot(HDC hdc, int playerNum, double xpos, double ypos)
 //{
 //	switch (playerNum) {
 //	case 1:
@@ -101,7 +101,7 @@ void Korea::Draw(HDC hdc, int playerNum) const
 //	PwGauge = 0;
 //}
 
-Korea::~Korea()
+Canada::~Canada()
 {
 	imgHead[0].Destroy();
 	imgHead[1].Destroy();
