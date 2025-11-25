@@ -5,7 +5,7 @@
 #define SERVERPORT 9000
 #define BUFSIZE    512
 
-DWORD WINAPI ClientThread(LPVOID arg)
+DWORD WINAPI RecvFromClient(LPVOID arg)
 {
     SOCKET client_sock = (SOCKET)arg;
     int retval;
@@ -22,12 +22,12 @@ DWORD WINAPI ClientThread(LPVOID arg)
     // 플레이어 준비 상태 수신
     bool PlayerReady;
     retval = recv(client_sock, (char*)&PlayerReady, sizeof(bool), MSG_WAITALL);
-	if (retval <= 0) { err_display("recv() - PlayerReady"); closesocket(client_sock); return 1; }
+	//if (retval <= 0) { err_display("recv() - PlayerReady"); closesocket(client_sock); return 1; }
 
 	printf("[서버] 플레이어 준비 상태: %s\n", PlayerReady ? "준비 완료" : "준비 미완료");
 
     closesocket(client_sock);
-    printf("[%s] 클라이언트 종료\n", addr);
+    //printf("[%s] 클라이언트 종료\n", addr);
     return 0;
 }
 
@@ -70,7 +70,7 @@ int main(void)
         // 스레드 생성
         HANDLE hThread = CreateThread(NULL,
             0,                   // 스택 크기 (0 = 기본)
-            ClientThread,        // 스레드 함수
+            RecvFromClient,      // 스레드 함수
             (LPVOID)client_sock, // 스레드 함수에 전달할 인수
             0,                   // 스레드 생성 제어
             NULL);               // 스레드 ID
