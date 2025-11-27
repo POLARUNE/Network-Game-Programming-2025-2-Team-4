@@ -21,33 +21,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 RECT WinSize;
 
+DWORD WINAPI ServerThread(LPVOID arg);
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	HWND hWnd;
 	MSG Message;
 	WNDCLASS WndClass;
 	g_hInst = hInstance;
-
-	if (!hPrevInstance) {
-		WndClass.cbClsExtra = 0;
-		WndClass.cbWndExtra = 0;
-		WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
-		WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-		WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-		WndClass.hInstance = hInstance;
-		WndClass.lpfnWndProc = (WNDPROC)WndProc;
-		WndClass.lpszClassName = lpszClass;
-		WndClass.lpszMenuName = NULL;
-		WndClass.style = CS_HREDRAW | CS_VREDRAW;
-		RegisterClass(&WndClass);
-	}
-	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW, 0, 0, 1000, 740, NULL, (HMENU)NULL, hInstance, NULL);
-	ShowWindow(hWnd, nCmdShow);
-
-	while (GetMessage(&Message, NULL, 0, 0)) {
-		TranslateMessage(&Message);
-		DispatchMessage(&Message);
-	}
 
 	// 윈속 초기화
 	WSADATA wsa;
@@ -68,6 +49,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	serveraddr.sin_port = htons(SERVERPORT);
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("connect()");
+
+	if (!hPrevInstance) {
+		WndClass.cbClsExtra = 0;
+		WndClass.cbWndExtra = 0;
+		WndClass.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+		WndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+		WndClass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+		WndClass.hInstance = hInstance;
+		WndClass.lpfnWndProc = (WNDPROC)WndProc;
+		WndClass.lpszClassName = lpszClass;
+		WndClass.lpszMenuName = NULL;
+		WndClass.style = CS_HREDRAW | CS_VREDRAW;
+		RegisterClass(&WndClass);
+	}
+	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW, 0, 0, 1000, 740, NULL, (HMENU)NULL, hInstance, NULL);
+	ShowWindow(hWnd, nCmdShow);
+
+	// 메시지 루프
+	while (GetMessage(&Message, NULL, 0, 0)) {
+		TranslateMessage(&Message);
+		DispatchMessage(&Message);
+	}
 
 	// 윈속 종료
 	WSACleanup();
