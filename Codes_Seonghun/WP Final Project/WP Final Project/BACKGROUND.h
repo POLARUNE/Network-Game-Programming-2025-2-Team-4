@@ -22,6 +22,9 @@ class Scene
 	CImage ResBG;
 
 public:
+	Scene();
+	~Scene();
+
 	void DrawBG(HDC hdc);
 	void DrawSelectBG(HDC hdc, int P1Score, int P2Score);
 	void ResultBG(HDC);

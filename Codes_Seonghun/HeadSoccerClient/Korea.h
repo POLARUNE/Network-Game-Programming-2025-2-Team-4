@@ -1,7 +1,5 @@
 #pragma once
 
-#include <atlimage.h>
-
 #include "Character.h"
 
 class Korea : public Character

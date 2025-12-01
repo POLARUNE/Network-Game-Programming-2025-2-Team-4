@@ -1,6 +1,5 @@
 #include "Character.h"
 
-
 Character::Character()
 {
 	xPos = 0;

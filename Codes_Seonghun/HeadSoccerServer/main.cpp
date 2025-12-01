@@ -1,7 +1,15 @@
 #include "../Common.h"
+#include "CHARACTER.h"
+#include "Korea.h"
+#include "Brazil.h"
+#include "Canada.h"
 
 #define SERVERPORT 9000
 #define BUFSIZE 128
+
+RECT P1Rect;
+RECT P2Rect;
+BOOL CrashCheck;
 
 // 클라이언트와 데이터 통신
 DWORD WINAPI ClientThread(LPVOID arg)
@@ -12,6 +20,9 @@ DWORD WINAPI ClientThread(LPVOID arg)
 	char addr[INET_ADDRSTRLEN];
 	int addrlen;
 
+	int retval;
+	bool IsReady = false;
+
 	// 클라이언트 정보 받기
 	addrlen = sizeof(clientaddr);
 	getpeername(client_sock, (struct sockaddr*)&clientaddr, &addrlen);
@@ -20,6 +31,11 @@ DWORD WINAPI ClientThread(LPVOID arg)
 	while (1)
 	{
 		// 클라이언트와 통신
+		retval = recv(client_sock, (char*)&IsReady, sizeof(bool), MSG_WAITALL);
+		if (retval <= 0) err_quit("recv()");
+
+		printf("[클라이언트 %s] %s\n", addr, IsReady ? "준비 완료" : "준비 대기 중");
+
 	}
 
 	// 소켓 닫기
