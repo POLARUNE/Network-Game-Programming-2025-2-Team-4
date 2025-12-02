@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Brazil.cpp" />
     <ClCompile Include="Canada.cpp" />
     <ClCompile Include="CHARACTER.cpp" />
@@ -130,6 +131,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ball.h" />
     <ClInclude Include="Brazil.h" />
     <ClInclude Include="Canada.h" />
     <ClInclude Include="CHARACTER.h" />

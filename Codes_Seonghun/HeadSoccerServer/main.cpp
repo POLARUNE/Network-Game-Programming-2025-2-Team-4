@@ -9,6 +9,8 @@
 
 #define MAX_CLI 3
 
+RECT WinSize = { 0,0,1000,740 };
+
 RECT P1Rect;
 RECT P2Rect;
 BOOL CrashCheck;
@@ -23,10 +25,15 @@ struct ThreadParam {
 	int PlayerNum;
 };
 
-int GivePlayerNum()
+int GivePlayerNum(volatile LONG* p)
 {
-	// Thread-safe 증가
-	return (int)InterlockedIncrement(&PlayerNum);
+	// Thread-safe 순환 연산
+	LONG old, next;
+	do {
+		old = *p;
+		next = (old + 1) > 3 ? 1 : (old + 1);
+	} while (InterlockedCompareExchange(p, next, old) != old);
+	return (int)next;
 }
 
 // 클라이언트와 데이터 통신
@@ -122,7 +129,7 @@ int main(int argc, char* argv[])
 		// 스레드 전달 구조체 생성
 		ThreadParam* param = new ThreadParam;
 		param->sock = client_sock;
-		param->PlayerNum = GivePlayerNum();   // 고유 번호 부여
+		param->PlayerNum = GivePlayerNum(&PlayerNum);   // 고유 번호 부여
 
 		// 스레드 생성
 		hThread = CreateThread(NULL, 0, ClientThread, param, 0, NULL);
