@@ -30,7 +30,7 @@ TCHAR lpszClass[] = TEXT("HEAD SOCCER");
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 BOOL CALLBACK Dialog_Proc(HWND, UINT, WPARAM, LPARAM);
-DWORD WINAPI SendToServer(LPVOID arg);
+DWORD WINAPI CommunicateToServer(LPVOID arg);
 
 void LOOP(HWND, BOOL KB[]);
 
@@ -186,10 +186,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case VK_ESCAPE:
-			if (SceneNum == 3) {
+			/*if (SceneNum == 3) {
 				Pause = TRUE;
 				DialogBox(g_hInst, MAKEINTRESOURCE(IDD_DIALOG1), hWnd, (DLGPROC)Dialog_Proc);
-			}
+			}*/
 
 			break;
 		}
@@ -228,7 +228,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			if (!Pause) {
 				if (Timer_M == 1) {
 					Timer_M = 0;
-					Timer_S = 9;
+					Timer_S = 5;
 				}
 
 				else if (Timer_M == 0) {
@@ -237,7 +237,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 						KillTimer(hWnd, 2);
 						KillTimer(hWnd, 5);
 						PlaySound(L"sound\\whistle.wav", NULL, SND_ASYNC);
-						SceneNum = 4;
+						SceneNum = 4; // 서버에서 씬 변환 및 타이머 관리 필요
 					}
 				}
 			}
@@ -398,11 +398,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 
-			if (sqrt(pow(500 - mouse.x, 2) + pow(530 - mouse.y, 2)) <= 110) { // 준비 버튼을 누르면
-				PlayerReady = TRUE;
-				CreateThread(NULL, 0, SendToServer, NULL, 0, NULL); // 준비 완료 여부를 서버로 송신
+			P2 = new Canada(2); // 임시로 2P 캐릭터 캐나다로 설정
 
-				SceneNum = 3;
+			if (sqrt(pow(500 - mouse.x, 2) + pow(530 - mouse.y, 2)) <= 110) {
+				PlayerReady = TRUE;
+				CreateThread(NULL, 0, CommunicateToServer, NULL, 0, NULL); // 서버와 통신 시작
+
+				//SceneNum = 3; // 서버에서 씬 변환하므로 주석 처리
 				DeleteSelBG();
 				SetTimer(hWnd, 1, 1000, NULL);
 				SetTimer(hWnd, 4, 1000, NULL);
@@ -412,10 +414,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case 4:
-			if (sqrt(pow(500 - mouse.x, 2) + pow(320 - mouse.y, 2)) <= 100) { // 다시하기 버튼을 누르면
+			if (sqrt(pow(500 - mouse.x, 2) + pow(320 - mouse.y, 2)) <= 100) { //다시하기 버튼(필요하면 서버에서 구현해야됨.)
 				PlayerReady = FALSE;
-				CreateThread(NULL, 0, SendToServer, NULL, 0, NULL); // 준비 완료 여부를 서버로 송신
 				SceneNum = 2;
+
+				//이하 부분은 서버에서 처리 필요
 				Timer_M = 1;
 				Timer_S = 0;
 				ball.Reset();
@@ -441,57 +444,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				PostQuitMessage(0);
 			}
 
-			break;
-		}
-
-		InvalidateRect(hWnd, NULL, FALSE);
-
-		break;
-
-	case WM_RBUTTONDOWN:
-		mouse.x = LOWORD(lParam);
-		mouse.y = HIWORD(lParam);
-
-		if (SceneNum == 2) {
-			for (int i = 0; i < 2; ++i) {
-				for (int j = 0; j < 5; ++j) {
-					if (PtInRect(&CharSelRect[j + (i * 5)], mouse)) {
-						P2Num = j + (i * 5);
-					}
-				}
-			}
-		}
-
-		switch (P2Num) {
-		case 0:
-			P2 = new Alien(2);
-			break;
-		case 1:
-			P2 = new Asura(2);
-			break;
-		case 2:
-			P2 = new Brazil(2);
-			break;
-		case 3:
-			P2 = new Cameroon(2);
-			break;
-		case 4:
-			P2 = new Canada(2);
-			break;
-		case 5:
-			P2 = new Egypt(2);
-			break;
-		case 6:
-			P2 = new Israel(2);
-			break;
-		case 7:
-			P2 = new Italy(2);
-			break;
-		case 8:
-			P2 = new Korea(2);
-			break;
-		case 9:
-			P2 = new Poland(2);
 			break;
 		}
 
@@ -653,8 +605,9 @@ BOOL CALLBACK Dialog_Proc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
-// 클라이언트 -> 서버
-DWORD WINAPI SendToServer(LPVOID arg) {
+// 서버와 통신하는 스레드 함수
+DWORD WINAPI CommunicateToServer(LPVOID arg) // 서버 CommunicateToClient 스레드 함수와 통신
+{
 	int retval;
 
 	// 소켓 생성
@@ -673,16 +626,34 @@ DWORD WINAPI SendToServer(LPVOID arg) {
 	if (retval == SOCKET_ERROR) err_quit("connect()");
 	printf("[클라이언트] 서버 연결 성공!\n");
 
-	if (SceneNum == 2) {
-		//플레이어 준비 상태 송신
-		retval = send(sock, (char*)&PlayerReady, sizeof(bool), 0);
-		if (retval == SOCKET_ERROR) err_quit("send() - PlayerReady");
-		printf("[클라이언트] 플레이어 준비 상태 전송 완료: %s\n", PlayerReady ? "준비됨" : "준비 안됨");
+	while (1) {
+		if (SceneNum == 2) {
+			//플레이어 준비 상태 송신
+			retval = send(sock, (char*)&PlayerReady, sizeof(bool), 0);
+			if (retval == SOCKET_ERROR) err_quit("send() - PlayerReady");
+			//printf("[클라이언트] 플레이어 준비 상태 전송 완료: %s\n", PlayerReady ? "준비됨" : "준비 안됨");
 
-		//플레이어 준비 상태 수신
-		bool opponentReady;
-		retval = recv(sock, (char*)&opponentReady, sizeof(bool), 0);
-		if (retval == SOCKET_ERROR) err_quit("recv() - OpponentReady");
+			// 씬 넘버 수신
+			retval = recv(sock, (char*)&SceneNum, sizeof(int), 0);
+			if (retval == SOCKET_ERROR) err_quit("recv() - SceneNum");
+		}
+
+		else if (SceneNum == 3) {
+			//키보드 입력 값 송신
+
+			//공, 플레이어들 좌표 수신
+			//점수 수신
+			//게임 시간 수신
+		}
+
+		else if (SceneNum == 4) {
+			// 최종 점수 수신
+			
+			//서버와 통신 종료
+			closesocket(sock);
+			return 0;
+		}
+		else break;
 	}
 
 	closesocket(sock);

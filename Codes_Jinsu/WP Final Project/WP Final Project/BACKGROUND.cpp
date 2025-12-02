@@ -111,14 +111,6 @@ void DrawSelectBG(HDC hdc, int P1Score, int P2Score)
 		else {
 			Char[0][P1Num].TransparentBlt(hdc, 50, 400, 300, 300, RGB(255, 0, 0));
 		}
-
-		if ((P2Num == 1) || (P2Num == 4) || (P2Num == 5)) {
-			Char[1][P2Num].TransparentBlt(hdc, WinSize.right - 350, 400, 300, 300, RGB(0, 255, 0));
-		}
-
-		else {
-			Char[1][P2Num].TransparentBlt(hdc, WinSize.right - 350, 400, 300, 300, RGB(255, 0, 0));
-		}
 	}
 
 	else if (SceneNum == 4) {
