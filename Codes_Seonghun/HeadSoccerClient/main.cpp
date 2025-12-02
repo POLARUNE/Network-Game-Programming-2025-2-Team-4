@@ -28,31 +28,9 @@ TCHAR lpszClass[] = TEXT("HEAD SOCCER");
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
-DWORD WINAPI ServerThread(LPVOID arg)
-{
-	int retval;
+bool PlayerReady = false;
 
-	// 소켓 생성
-	sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock == INVALID_SOCKET) err_quit("socket()");
-
-	// connect()
-	struct sockaddr_in serveraddr;
-	memset(&serveraddr, 0, sizeof(serveraddr));
-	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
-	serveraddr.sin_port = htons(SERVERPORT);
-	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
-	if (retval == SOCKET_ERROR) err_quit("connect()");
-
-	while (1)
-	{
-
-	}
-
-	closesocket(sock);
-	return 0;
-}
+DWORD WINAPI ServerThread(LPVOID arg);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -80,6 +58,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		RegisterClass(&WndClass);
 	}
 	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW, 0, 0, 1016, 779, NULL, (HMENU)NULL, hInstance, NULL);
+	if (!hWnd) {
+		printf("CreateWindow failed: %d\n", GetLastError());
+		return 0;
+	}
 	ShowWindow(hWnd, nCmdShow);
 
 	// 메시지 루프
@@ -103,6 +85,8 @@ Character* P1;
 Character* P2;
 
 Ball ball;
+
+RECT P1Rect, P2Rect;
 
 /*
 BOOL CrashCheck = FALSE;
@@ -197,6 +181,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 
+	case WM_LBUTTONDOWN:
+		mouse.x = LOWORD(lParam);
+		mouse.y = HIWORD(lParam);
+
+		switch (SceneNum)
+		{
+		case SCENE_START:
+			if (PtInRect(&ButtonPlay, mouse)) {
+				SceneNum = SCENE_READY;
+				CreateThread(NULL, 0, ServerThread, NULL, 0, NULL);
+			}
+
+			else if (PtInRect(&ButtonExit, mouse)) {
+				PostQuitMessage(0);
+			}
+			break;
+
+		case SCENE_READY:
+			break;
+		}
+
+		InvalidateRect(hWnd, NULL, FALSE);
+		break;
+
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 
@@ -211,6 +219,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case SCENE_READY:
+			PlayerReady = true;
 			BackGround.DrawReadyBG(memdc);
 			break;
 
@@ -250,4 +259,42 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	}
 
 	return(DefWindowProc(hWnd, iMessage, wParam, lParam));
+}
+
+DWORD WINAPI ServerThread(LPVOID arg)
+{
+	int retval;
+
+	// 소켓 생성
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	if (sock == INVALID_SOCKET) err_quit("socket()");
+
+	// connect()
+	struct sockaddr_in serveraddr;
+	memset(&serveraddr, 0, sizeof(serveraddr));
+	serveraddr.sin_family = AF_INET;
+	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
+	serveraddr.sin_port = htons(SERVERPORT);
+	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
+	if (retval == SOCKET_ERROR) err_quit("connect()");
+
+	while (1)
+	{
+		switch (SceneNum)
+		{
+		case SCENE_READY:
+			//플레이어 준비 상태 송신
+			retval = send(sock, (char*)&PlayerReady, sizeof(bool), 0);
+			if (retval == SOCKET_ERROR) err_quit("send() - PlayerReady");
+
+			//플레이어 준비 상태 수신
+			bool opponentReady;
+			retval = recv(sock, (char*)&opponentReady, sizeof(bool), 0);
+			if (retval == SOCKET_ERROR) err_quit("recv() - OpponentReady");
+			break;
+		}
+	}
+
+	closesocket(sock);
+	return 0;
 }

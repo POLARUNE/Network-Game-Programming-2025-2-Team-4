@@ -4,24 +4,43 @@
 #include "Brazil.h"
 #include "Canada.h"
 
-#define SERVERPORT 9000
-#define BUFSIZE 128
+#define SERVERPORT	9000
+#define BUFSIZE		128
+
+#define MAX_CLI 3
 
 RECT P1Rect;
 RECT P2Rect;
 BOOL CrashCheck;
 
+LONG PlayerNum = 0; // InterLocked를 위한 LONG 타입
+
+bool IsReady[MAX_CLI] = { false };
+bool AllReady = false;
+
+struct ThreadParam {
+	SOCKET sock;
+	int PlayerNum;
+};
+
+int GivePlayerNum()
+{
+	// Thread-safe 증가
+	return (int)InterlockedIncrement(&PlayerNum);
+}
+
 // 클라이언트와 데이터 통신
 DWORD WINAPI ClientThread(LPVOID arg)
 {
 	// 데이터 통신에 사용할 변수
-	SOCKET client_sock = (SOCKET)arg;
+	ThreadParam* p = (ThreadParam*)arg;
+	SOCKET client_sock = p->sock;
 	struct sockaddr_in clientaddr;
 	char addr[INET_ADDRSTRLEN];
 	int addrlen;
 
 	int retval;
-	bool IsReady = false;
+	int myPNum = p->PlayerNum;
 
 	// 클라이언트 정보 받기
 	addrlen = sizeof(clientaddr);
@@ -31,16 +50,24 @@ DWORD WINAPI ClientThread(LPVOID arg)
 	while (1)
 	{
 		// 클라이언트와 통신
-		retval = recv(client_sock, (char*)&IsReady, sizeof(bool), MSG_WAITALL);
+		retval = recv(client_sock, (char*)&IsReady[myPNum], sizeof(bool), MSG_WAITALL);
 		if (retval <= 0) err_quit("recv()");
 
-		printf("[클라이언트 %s] %s\n", addr, IsReady ? "준비 완료" : "준비 대기 중");
+		printf("[TCP %s] 클라이언트%d %s\n", addr, myPNum, IsReady[myPNum] ? "준비 완료" : "준비 대기 중");
+
+		if (IsReady[myPNum]) AllReady = true;
+		else AllReady = false;
+
+		retval = recv(client_sock, (char*)&AllReady, sizeof(bool), MSG_WAITALL);
+		if (retval <= 0) err_quit("recv()");
+		else printf("모든 클라이언트 %s\n", AllReady ? "준비 완료" : "준비 대기 중");
 
 	}
 
 	// 소켓 닫기
 	closesocket(client_sock);
 	printf("[TCP 서버] 클라이언트 종료: IP 주소=%s, 포트 번호=%d\n", addr, ntohs(clientaddr.sin_port));
+	delete p;
 	return 0;
 }
 
@@ -75,6 +102,8 @@ int main(int argc, char* argv[])
 	int addrlen;
 	HANDLE hThread;
 
+	printf("[서버] 클라이언트 접속 대기 중...\n");
+
 	while (1) {
 		// accept()
 		addrlen = sizeof(clientaddr);
@@ -90,9 +119,19 @@ int main(int argc, char* argv[])
 		printf("\n\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
 			addr, ntohs(clientaddr.sin_port));
 
+		// 스레드 전달 구조체 생성
+		ThreadParam* param = new ThreadParam;
+		param->sock = client_sock;
+		param->PlayerNum = GivePlayerNum();   // 고유 번호 부여
+
 		// 스레드 생성
-		hThread = CreateThread(NULL, 0, ClientThread, (LPVOID)client_sock, 0, NULL);
-		if (hThread == NULL) closesocket(client_sock);
+		hThread = CreateThread(NULL, 0, ClientThread, param, 0, NULL);
+		if (hThread == NULL)
+		{
+			printf("[서버] 스레드 생성 실패\n");
+			closesocket(client_sock);
+			delete param;
+		}
 		else CloseHandle(hThread);
 	}
 
