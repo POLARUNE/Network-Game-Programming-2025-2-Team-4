@@ -674,10 +674,15 @@ DWORD WINAPI SendToServer(LPVOID arg) {
 	printf("[클라이언트] 서버 연결 성공!\n");
 
 	if (SceneNum == 2) {
-		//플레이어 준비 상태 전송
+		//플레이어 준비 상태 송신
 		retval = send(sock, (char*)&PlayerReady, sizeof(bool), 0);
 		if (retval == SOCKET_ERROR) err_quit("send() - PlayerReady");
 		printf("[클라이언트] 플레이어 준비 상태 전송 완료: %s\n", PlayerReady ? "준비됨" : "준비 안됨");
+
+		//플레이어 준비 상태 수신
+		bool opponentReady;
+		retval = recv(sock, (char*)&opponentReady, sizeof(bool), 0);
+		if (retval == SOCKET_ERROR) err_quit("recv() - OpponentReady");
 	}
 
 	closesocket(sock);

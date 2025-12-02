@@ -5,7 +5,6 @@
 #define MAX_PLAYER 3
 
 LONG PlayerNum = -1;                 // Interlocked를 위해 LONG 타입
-bool PlayerReady[MAX_PLAYER] = { false };
 
 struct ThreadParam {
     SOCKET sock;
@@ -38,10 +37,25 @@ DWORD WINAPI RecvFromClient(LPVOID arg)
         addr, ntohs(clientaddr.sin_port), myPlayerNum);
 
     // 플레이어 준비 상태 수신
-    retval = recv(client_sock, (char*)&PlayerReady[myPlayerNum], sizeof(bool), MSG_WAITALL);
+    bool PlayerReady;
+    retval = recv(client_sock, (char*)&PlayerReady, sizeof(bool), MSG_WAITALL);
+    
+    printf("[서버] 플레이어 %d 준비 상태: %s\n", myPlayerNum, PlayerReady ? "준비 완료" : "준비 미완료");
 
-    printf("[서버] 플레이어 %d 준비 상태: %s\n", myPlayerNum, PlayerReady[myPlayerNum] ? "준비 완료" : "준비 미완료");
+    // 플레이어 준비 상태 송신
+    bool allReady;
+    if (PlayerReady) {
+        allReady = true;
+    }
+    else {
+		allReady = false;
+    }
 
+	retval = send(client_sock, (char*)&allReady, sizeof(bool), 0);
+    if (retval == SOCKET_ERROR) {err_display("send()");}
+    else {
+        printf("[서버] 플레이어 %d에게 전체 준비 상태 전송: %s\n", myPlayerNum, allReady ? "모두 준비 완료" : "준비 미완료");
+    }
     closesocket(client_sock);
     delete p;   // 할당된 구조체 메모리 해제
 
