@@ -1,33 +1,50 @@
 #include "..\Common.h"
-#include "CHARACTER.h"
-#include "Korea.h"
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
+#define MAX_PLAYER 3
+
+LONG PlayerNum = -1;                 // Interlocked를 위해 LONG 타입
+bool PlayerReady[MAX_PLAYER] = { false };
+
+struct ThreadParam {
+    SOCKET sock;
+    int playerNum;
+};
+
+int GivePlayerNum()
+{
+    // Thread-safe 증가
+    return (int)InterlockedIncrement(&PlayerNum);
+}
 
 DWORD WINAPI RecvFromClient(LPVOID arg)
 {
-    SOCKET client_sock = (SOCKET)arg;
+    ThreadParam* p = (ThreadParam*)arg;
+    SOCKET client_sock = p->sock;
+    int myPlayerNum = p->playerNum;
+
     int retval;
 
+    // 클라이언트 주소 출력
     struct sockaddr_in clientaddr;
     int addrlen = sizeof(clientaddr);
     getpeername(client_sock, (struct sockaddr*)&clientaddr, &addrlen);
 
     char addr[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &clientaddr.sin_addr, addr, sizeof(addr));
-    printf("\n[TCP 서버] 클라이언트 접속 - IP 주소: %s, 포트 번호: %d\n",
-        addr, ntohs(clientaddr.sin_port));
+
+    printf("\n[TCP 서버] 클라이언트 접속 - IP 주소: %s, 포트 번호: %d, 플레이어 번호: %d\n",
+        addr, ntohs(clientaddr.sin_port), myPlayerNum);
 
     // 플레이어 준비 상태 수신
-    bool PlayerReady;
-    retval = recv(client_sock, (char*)&PlayerReady, sizeof(bool), MSG_WAITALL);
-	//if (retval <= 0) { err_display("recv() - PlayerReady"); closesocket(client_sock); return 1; }
+    retval = recv(client_sock, (char*)&PlayerReady[myPlayerNum], sizeof(bool), MSG_WAITALL);
 
-	printf("[서버] 플레이어 준비 상태: %s\n", PlayerReady ? "준비 완료" : "준비 미완료");
+    printf("[서버] 플레이어 %d 준비 상태: %s\n", myPlayerNum, PlayerReady[myPlayerNum] ? "준비 완료" : "준비 미완료");
 
     closesocket(client_sock);
-    //printf("[%s] 클라이언트 종료\n", addr);
+    delete p;   // 할당된 구조체 메모리 해제
+
     return 0;
 }
 
@@ -42,7 +59,8 @@ int main(void)
 
     // 소켓 생성
     SOCKET listen_sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (listen_sock == INVALID_SOCKET) err_quit("socket()");
+    if (listen_sock == INVALID_SOCKET)
+        err_quit("socket()");
 
     // bind(), listen()
     struct sockaddr_in serveraddr;
@@ -52,10 +70,12 @@ int main(void)
     serveraddr.sin_port = htons(SERVERPORT);
 
     retval = bind(listen_sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
-    if (retval == SOCKET_ERROR) err_quit("bind()");
+    if (retval == SOCKET_ERROR)
+        err_quit("bind()");
 
     retval = listen(listen_sock, SOMAXCONN);
-    if (retval == SOCKET_ERROR) err_quit("listen()");
+    if (retval == SOCKET_ERROR)
+        err_quit("listen()");
 
     printf("[TCP 서버] 클라이언트 접속 대기 중...\n");
 
@@ -65,19 +85,23 @@ int main(void)
         int addrlen = sizeof(clientaddr);
         SOCKET client_sock = accept(listen_sock, (struct sockaddr*)&clientaddr, &addrlen);
 
-        if (client_sock == INVALID_SOCKET) { err_display("accept()"); break; }
+        if (client_sock == INVALID_SOCKET) {
+            err_display("accept()");
+            break;
+        }
+
+        // 스레드 전달 구조체 생성
+        ThreadParam* param = new ThreadParam;
+        param->sock = client_sock;
+        param->playerNum = GivePlayerNum();   // 고유 번호 부여
 
         // 스레드 생성
-        HANDLE hThread = CreateThread(NULL,
-            0,                   // 스택 크기 (0 = 기본)
-            RecvFromClient,      // 스레드 함수
-            (LPVOID)client_sock, // 스레드 함수에 전달할 인수
-            0,                   // 스레드 생성 제어
-            NULL);               // 스레드 ID
+        HANDLE hThread = CreateThread(NULL, 0, RecvFromClient, param, 0, NULL);
 
         if (hThread == NULL) {
             printf("[서버] 스레드 생성 실패\n");
             closesocket(client_sock);
+            delete param;  // 메모리 해제
         }
         else {
             CloseHandle(hThread); // 스레드 핸들 닫기
