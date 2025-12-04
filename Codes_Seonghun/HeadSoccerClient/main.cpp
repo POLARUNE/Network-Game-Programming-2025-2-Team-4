@@ -11,7 +11,8 @@
 
 #pragma comment (lib, "msimg32.lib")
 
-#define SERVERIP		"127.0.0.1"
+char SERVERIP[64];
+
 #define SERVERPORT		9000
 #define BUFSIZE			128
 
@@ -34,6 +35,8 @@ DWORD WINAPI ServerThread(LPVOID arg);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+	strcpy(SERVERIP, lpCmdLine);
+
 	HWND hWnd;
 	MSG Message;
 	WNDCLASS WndClass;
