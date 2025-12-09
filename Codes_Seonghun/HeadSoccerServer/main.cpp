@@ -16,6 +16,10 @@ LONG PlayerNum = 0; // InterLocked를 위한 LONG 타입
 bool IsReady[MAX_CLI] = { false };
 bool AllReady = false;
 
+Character* P1;
+Character* P2;
+Character* P3;
+
 struct ThreadParam {
 	SOCKET sock;
 	int PlayerNum;

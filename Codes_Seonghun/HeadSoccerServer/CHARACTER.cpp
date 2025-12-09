@@ -11,6 +11,8 @@ Character::Character(int playerNum)
 		xPos = 875;
 		break;
 	}
+
+	playernum = playerNum;
 }
 
 RECT Character::CharPos() const

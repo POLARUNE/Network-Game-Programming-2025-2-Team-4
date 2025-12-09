@@ -24,6 +24,9 @@ protected:
 	// body 변경
 	int kick = 0;
 
+	// 플레이어 번호 저장
+	int playernum = 0;
+
 public:
 	Character(int playerNum);
 	~Character();
