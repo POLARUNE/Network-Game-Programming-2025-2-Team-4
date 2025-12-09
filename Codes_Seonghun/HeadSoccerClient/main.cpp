@@ -10,6 +10,7 @@
 #include <atlimage.h>
 
 #pragma comment (lib, "msimg32.lib")
+#pragma comment (lib, "winmm.lib")
 
 char SERVERIP[64];
 
@@ -29,7 +30,8 @@ TCHAR lpszClass[] = TEXT("HEAD SOCCER");
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam);
 
-bool PlayerReady = false;
+char PlayersReady = 0b00000000; // p1 p2 p3 self 순으로 2비트씩
+char Readytemp;
 
 DWORD WINAPI ServerThread(LPVOID arg);
 
@@ -91,26 +93,6 @@ Ball ball;
 
 RECT P1Rect, P2Rect;
 
-/*
-BOOL CrashCheck = FALSE;
-
-RECT P1Rect, P2Rect;
-
-int P1Num, P2Num;
-BOOL Kick1, Kick2;
-BOOL Goal1, Goal2;
-
-BOOL Pause = FALSE;
-BOOL PlayerReady = FALSE;
-
-CImage Char[2][10];
-CImage CharP1;
-CImage CharP2;
-
-BOOL P1Power, P2Power;
-BOOL P1Crash, P2Crash;
-*/
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
 	HDC hdc, memdc;
@@ -122,18 +104,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	static RECT ButtonExit = { 680, 655, 930, 700 };
 
 	static POINT mouse;
-	
-	/*
-	static BOOL KeyBuffer[256] = { FALSE };
-
-	static int JmpCnt1, JmpCnt2;
-
-	RECT CrashSize;
-
-	static RECT CharSelRect[10];
-
-	static int P1Score, P2Score;
-	*/
 
 	switch (iMessage) {
 	case WM_CREATE:
@@ -182,6 +152,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		case 'f':
 			break;
 		}
+
+		InvalidateRect(hWnd, NULL, FALSE);
 		break;
 
 	case WM_LBUTTONDOWN:
@@ -195,10 +167,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				SceneNum = SCENE_READY;
 				CreateThread(NULL, 0, ServerThread, NULL, 0, NULL);
 			}
-
 			else if (PtInRect(&ButtonExit, mouse)) {
 				PostQuitMessage(0);
 			}
+
 			break;
 
 		case SCENE_READY:
@@ -222,7 +194,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case SCENE_READY:
-			PlayerReady = true;
 			BackGround.DrawReadyBG(memdc);
 			break;
 
@@ -287,14 +258,24 @@ DWORD WINAPI ServerThread(LPVOID arg)
 		{
 		case SCENE_READY:
 			//플레이어 준비 상태 송신
-			retval = send(sock, (char*)&PlayerReady, sizeof(bool), 0);
-			if (retval == SOCKET_ERROR) err_quit("send() - PlayerReady");
+			retval = send(sock, (char*)&PlayersReady, sizeof(char), 0);
+			if (retval == SOCKET_ERROR) err_quit("send() - PlayersReady");
 
 			//플레이어 준비 상태 수신
-			bool opponentReady;
-			retval = recv(sock, (char*)&opponentReady, sizeof(bool), 0);
-			if (retval == SOCKET_ERROR) err_quit("recv() - OpponentReady");
+			Readytemp = 0;
+			retval = recv(sock, (char *)& Readytemp, sizeof(char), 0);
+			if (retval == SOCKET_ERROR) err_quit("recv() - PlayersReady");
+			else PlayersReady |= Readytemp;
+
 			break;
+
+		case SCENE_PLAY:
+			break;
+
+		case SCENE_RESULT:
+			// 서버와 통신 종료
+			closesocket(sock);
+			return 0;
 		}
 	}
 
