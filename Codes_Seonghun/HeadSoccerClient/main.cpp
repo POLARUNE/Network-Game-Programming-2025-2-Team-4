@@ -317,11 +317,11 @@ DWORD WINAPI ServerThread(LPVOID arg)
 		switch (SceneNum)
 		{
 		case SCENE_READY:
-			//플레이어 준비 상태 송신
+			// 플레이어 준비 상태 송신
 			retval = send(sock, (char*)&PlayersReady, sizeof(char), 0);
 			if (retval == SOCKET_ERROR) err_quit("send() - PlayersReady");
 
-			//플레이어 준비 상태 수신
+			// 모든 플레이어 준비 상태 수신
 			Readytemp = 0;
 			retval = recv(sock, (char*)&Readytemp, sizeof(char), 0);
 			if (retval == SOCKET_ERROR) err_quit("recv() - PlayersReady");
@@ -330,7 +330,7 @@ DWORD WINAPI ServerThread(LPVOID arg)
 			break;
 
 		case SCENE_PLAY:
-			//키보드 입력 값 송신
+			// 키보드 입력 값 송신
 			retval = send(sock, (char*)&KeyBuf, sizeof(char), 0);
 			if (retval == SOCKET_ERROR) err_quit("send() - KeyBuf");
 			break;

@@ -1,15 +1,19 @@
 #include "../Common.h"
 #include "CHARACTER.h"
+#include "Ball.h"
 
 #define SERVERPORT	9000
 #define BUFSIZE		128
+
+#define SCENE_READY		1002
+#define SCENE_PLAY		1003
+#define SCENE_RESULT	1004
 
 #define MAX_CLI 3
 
 RECT WinSize = { 0,0,1000,740 };
 
-RECT P1Rect;
-RECT P2Rect;
+int SceneNum = SCENE_READY;
 
 LONG PlayerNum = 0; // InterLocked를 위한 LONG 타입
 
