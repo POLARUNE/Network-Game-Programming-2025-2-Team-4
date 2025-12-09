@@ -33,6 +33,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 char PlayersReady = 0b00000000; // p1 p2 p3 self 순으로 2비트씩
 char Readytemp;
 
+char KeyBuf = 0b00000000; // 0 0 0 w a s d f 순서.
+
 DWORD WINAPI ServerThread(LPVOID arg);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -119,18 +121,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		switch (wParam) {
 		case 'W':
 		case 'w':
+
+			KeyBuf |= 0b10000;
 			break;
+
 		case 'A':
 		case 'a':
+
+			KeyBuf |= 0b1000;
 			break;
+
 		case 'S':
 		case 's':
+
+			KeyBuf |= 0b100;
 			break;
+
 		case 'D':
 		case 'd':
+
+			KeyBuf |= 0b10;
 			break;
+
 		case 'F':
 		case 'f':
+
+			KeyBuf |= ~KeyBuf & (KeyBuf + 1);
 			break;
 		}
 
@@ -141,18 +157,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		switch (wParam) {
 		case 'W':
 		case 'w':
+
+			KeyBuf &= ~(1<<4);
 			break;
+
 		case 'A':
 		case 'a':
+
+			KeyBuf &= ~(1 << 3);
 			break;
+
 		case 'S':
 		case 's':
+
+			KeyBuf &= ~(1 << 2);
 			break;
+
 		case 'D':
 		case 'd':
+
+			KeyBuf &= ~(1 << 1);
 			break;
+
 		case 'F':
 		case 'f':
+
+			KeyBuf &= KeyBuf - 1;
 			break;
 		}
 
@@ -293,13 +323,16 @@ DWORD WINAPI ServerThread(LPVOID arg)
 
 			//플레이어 준비 상태 수신
 			Readytemp = 0;
-			retval = recv(sock, (char *)& Readytemp, sizeof(char), 0);
+			retval = recv(sock, (char*)&Readytemp, sizeof(char), 0);
 			if (retval == SOCKET_ERROR) err_quit("recv() - PlayersReady");
 			else PlayersReady |= Readytemp;
 
 			break;
 
 		case SCENE_PLAY:
+			//키보드 입력 값 송신
+			retval = send(sock, (char*)&KeyBuf, sizeof(char), 0);
+			if (retval == SOCKET_ERROR) err_quit("send() - KeyBuf");
 			break;
 
 		case SCENE_RESULT:
