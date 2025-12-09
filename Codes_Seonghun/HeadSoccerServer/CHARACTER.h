@@ -11,28 +11,29 @@ class Character {
 protected:
 	// 좌표
 	int xPos = 0;
-	int yPos = 0;
+	int yPos = 630;
 
 	// 능력치
-	int jump = 0;
-	int speed = 0;
-	int power = 0;
+	int jump = 5;
+	int speed = 5;
+	int power = 5;
 
 	// 점수
 	int score = 0;
 
 	// body 변경
 	int kick = 0;
+
 public:
-	Character();
+	Character(int playerNum);
+	~Character();
 
 	RECT CharPos() const;
 	int CharScore() const;
 
-	virtual void Move(int dir, int playerNum) = 0;
-	virtual void Jump(int dir) = 0;
+	void Move(int dir, int playerNum);
+	void Jump(int dir);
 	void Kick(int);
 	void Goal();
 	void ResetPos(int);
-	virtual ~Character();
 };

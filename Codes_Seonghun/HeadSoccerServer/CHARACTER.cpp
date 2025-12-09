@@ -1,11 +1,16 @@
 #include "CHARACTER.h"
 
-extern BOOL CrashCheck;
-
-Character::Character()
+Character::Character(int playerNum)
 {
-	xPos = 0;
-	yPos = 0;
+	switch (playerNum) {
+	case 1:
+		xPos = 100;
+		break;
+
+	case 2:
+		xPos = 875;
+		break;
+	}
 }
 
 RECT Character::CharPos() const
@@ -41,7 +46,31 @@ void Character::ResetPos(int playerNum)
 		xPos = 875;
 		break;
 	}
+
 	yPos = 630;
+}
+
+void Character::Move(int dir, int playerNum)
+{
+	switch (dir) {
+	case 1: // 좌
+		xPos -= speed;
+
+		if (xPos <= 75) xPos = 75;
+		break;
+
+	case 2: // 우
+		xPos += speed;
+
+		if (xPos >= 900) xPos = 900;
+		break;
+	}
+}
+
+void Character::Jump(int dir)
+{
+	if (dir) yPos -= jump; // 올라가기
+	else yPos += jump; // 내려가기
 }
 
 Character::~Character()

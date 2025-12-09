@@ -1,8 +1,5 @@
 #include "../Common.h"
 #include "CHARACTER.h"
-#include "Korea.h"
-#include "Brazil.h"
-#include "Canada.h"
 
 #define SERVERPORT	9000
 #define BUFSIZE		128
@@ -13,7 +10,6 @@ RECT WinSize = { 0,0,1000,740 };
 
 RECT P1Rect;
 RECT P2Rect;
-BOOL CrashCheck;
 
 LONG PlayerNum = 0; // InterLocked를 위한 LONG 타입
 
