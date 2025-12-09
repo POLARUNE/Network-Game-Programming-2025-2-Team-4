@@ -1,4 +1,5 @@
 #include "../Common.h"
+
 #include "CHARACTER.h"
 #include "Ball.h"
 
@@ -17,8 +18,8 @@ int SceneNum = SCENE_READY;
 
 LONG PlayerNum = 0; // InterLocked를 위한 LONG 타입
 
-bool IsReady[MAX_CLI] = { false };
-bool AllReady = false;
+char PlayersReady = 0; // p1 p2 p3 00
+char PlayerReady[MAX_CLI] = { 0 };
 
 Character* P1;
 Character* P2;
@@ -61,18 +62,30 @@ DWORD WINAPI ClientThread(LPVOID arg)
 	while (1)
 	{
 		// 클라이언트와 통신
-		retval = recv(client_sock, (char*)&IsReady[myPNum], sizeof(bool), MSG_WAITALL);
-		if (retval <= 0) err_quit("recv()");
 
-		printf("[TCP %s] 클라이언트%d %s\n", addr, myPNum, IsReady[myPNum] ? "준비 완료" : "준비 대기 중");
+		// 씬 넘버 송신
+		retval = send(client_sock, (char*)&SceneNum, sizeof(int), 0);
+		if (retval <= 0) err_quit("send() - SceneNum");
 
-		if (IsReady[myPNum]) AllReady = true;
-		else AllReady = false;
+		switch (SceneNum)
+		{
+		case SCENE_READY:
+			// 플레이어 준비 상태 수신
+			retval = recv(client_sock, (char*)&PlayerReady[myPNum], sizeof(char), MSG_WAITALL);
+			if (retval <= 0) err_quit("recv()");
 
-		retval = recv(client_sock, (char*)&AllReady, sizeof(bool), MSG_WAITALL);
-		if (retval <= 0) err_quit("recv()");
-		else printf("모든 클라이언트 %s\n", AllReady ? "준비 완료" : "준비 대기 중");
+			printf("[TCP %s] 클라이언트%d번 준비상태 수신\n", addr, myPNum);
 
+			PlayersReady ^= PlayerReady[myPNum];
+
+			retval = recv(client_sock, (char*)&PlayersReady, sizeof(char), MSG_WAITALL);
+			if (retval <= 0) err_quit("recv()");
+			else printf("모든 클라이언트 준비상태 송신\n");
+
+			if ((PlayersReady & 0b10101000) == 0b10101000) SceneNum = SCENE_PLAY;
+
+			break;
+		}		
 	}
 
 	// 소켓 닫기
