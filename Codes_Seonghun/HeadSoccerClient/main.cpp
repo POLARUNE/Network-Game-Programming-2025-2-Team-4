@@ -84,12 +84,12 @@ RECT WinSize;
 
 int SceneNum;
 
-Scene BackGround;
+Scene* BackGround;
 
 Character* P1;
 Character* P2;
 
-Ball ball;
+Ball* ball;
 
 RECT P1Rect, P2Rect;
 
@@ -109,7 +109,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 		GetClientRect(hWnd, &WinSize);
 		SceneNum = SCENE_START;
-
+		BackGround = new Scene();
+		BackGround->SetMinute(1);
+		BackGround->SetSecond(0);
+		PlaySound(L"Sound\\bgm.wav", NULL, SND_ASYNC | SND_LOOP);
 		break;
 
 	case WM_KEYDOWN:
@@ -174,6 +177,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case SCENE_READY:
+			if (sqrt(pow(500 - mouse.x, 2) + pow(530 - mouse.y, 2)) <= 110) {
+				PlayersReady ^= 0b10;
+
+				if (PlayersReady == 0b10101010)
+				{
+					P1 = new Korea(1);
+					ball = new Ball();
+				}
+			}
+
+			break;
+
+		case SCENE_RESULT:
+			if (sqrt(pow(500 - mouse.x, 2) + pow(570 - mouse.y, 2)) <= 100) {
+				delete P1;
+				delete P2;
+				delete BackGround;
+				delete ball;
+
+				PostQuitMessage(0);
+			}
 			break;
 		}
 
@@ -190,20 +214,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 		switch (SceneNum) {
 		case SCENE_START:
-			BackGround.DrawStartBG(memdc);
+			BackGround->DrawStartBG(memdc);
 			break;
 
 		case SCENE_READY:
-			BackGround.DrawReadyBG(memdc);
+			BackGround->DrawReadyBG(memdc);
 			break;
 
 		case SCENE_PLAY:
-			BackGround.DrawPlayBG(memdc, P1->CharScore(), P2->CharScore());
+			BackGround->DrawPlayBG(memdc, P1->CharScore(), P2->CharScore());
 			
 			P1->UI_Print(memdc, 1);
 			P2->UI_Print(memdc, 2);
 
-			ball.Draw(memdc);
+			ball->Draw(memdc);
 
 			P1->Draw(memdc, 1);
 			P2->Draw(memdc, 2);
@@ -211,7 +235,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case SCENE_RESULT:
-			BackGround.DrawResultBG(memdc, P1->CharScore(), P2->CharScore());
+			BackGround->DrawResultBG(memdc, P1->CharScore(), P2->CharScore());
 			break;
 		}
 
@@ -227,6 +251,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		
 		delete P1;
 		delete P2;
+		delete BackGround;
+		delete ball;
 
 		PostQuitMessage(0);
 		break;
@@ -254,6 +280,10 @@ DWORD WINAPI ServerThread(LPVOID arg)
 
 	while (1)
 	{
+		// 씬 넘버 수신
+		retval = recv(sock, (char*)&SceneNum, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_quit("recv() - SceneNum");
+
 		switch (SceneNum)
 		{
 		case SCENE_READY:
