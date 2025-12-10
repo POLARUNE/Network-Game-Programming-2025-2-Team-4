@@ -1,0 +1,82 @@
+﻿  BACKGROUND.cpp
+  BALL.cpp
+  CHARACTER.cpp
+  Korea.cpp
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Korea.cpp(158,45): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Korea.cpp(158,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Korea.cpp(162,45): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Korea.cpp(162,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Main.cpp
+C:\Users\이진수\Downloads\HeadSoccer\Common.h(3,9): warning C4005: '_CRT_SECURE_NO_WARNINGS': 매크로 재정의
+  (소스 파일 'Main.cpp'을(를) 컴파일하는 중)
+      C:\Users\이진수\Downloads\HeadSoccer\Common.h(3,9):
+      이전에 명령줄에서 선언된 '_CRT_SECURE_NO_WARNINGS'
+  
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Main.cpp(72,16): warning C4244: 'return': 'WPARAM'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Alien.cpp
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(246,50): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(246,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(250,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(250,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(259,50): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(259,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(264,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(264,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(271,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(271,32): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(284,48): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(284,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(289,48): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(289,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(299,50): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(299,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(303,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(303,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(312,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(312,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(313,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(313,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(317,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(317,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(318,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(318,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(327,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(327,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(331,49): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Alien.cpp(331,38): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Asura.cpp
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Asura.cpp(158,46): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Asura.cpp(158,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Asura.cpp(162,45): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Asura.cpp(162,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Brazil.cpp
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Brazil.cpp(158,46): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Brazil.cpp(158,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Brazil.cpp(163,45): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Brazil.cpp(163,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Cameroon.cpp
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Cameroon.cpp(156,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Cameroon.cpp(156,28): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Canada.cpp
+  Egypt.cpp
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Egypt.cpp(160,47): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Egypt.cpp(160,37): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Egypt.cpp(165,47): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Egypt.cpp(165,37): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Israel.cpp
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Israel.cpp(158,46): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Israel.cpp(158,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Israel.cpp(162,45): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Israel.cpp(162,34): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Italy.cpp
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Italy.cpp(160,48): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Italy.cpp(160,37): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Italy.cpp(161,48): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Italy.cpp(161,37): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Italy.cpp(165,48): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Italy.cpp(165,37): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Italy.cpp(166,48): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\WP Final Project\Italy.cpp(166,37): warning C4244: '인수': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  Poland.cpp
+  코드를 생성하고 있습니다...
+  WP Final Project.vcxproj -> C:\Users\이진수\Downloads\HeadSoccer\WP Final Project\x64\Debug\WP Final Project.exe
