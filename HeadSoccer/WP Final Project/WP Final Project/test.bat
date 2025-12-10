@@ -1,0 +1,1 @@
+start "../x64/Release/WP Final Project.exe"

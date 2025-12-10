@@ -2,7 +2,6 @@
 #include <atlimage.h>
 #include <math.h>
 
-
 #include "BACKGROUND.h"
 #include "BALL.h"
 #include "CHARACTER.h"
@@ -24,7 +23,8 @@
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
-#define SERVERIP   "192.168.0.1"
+
+char SERVERIP[64] = "127.0.0.1";
 
 HINSTANCE g_hInst;
 TCHAR lpszClass[] = TEXT("HEAD SOCCER");
@@ -38,12 +38,14 @@ void LOOP(HWND, BOOL KB[]);
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
+	strcpy(SERVERIP, lpszCmdParam);
+
 	HWND hWnd;
 	MSG Message;
 	WNDCLASS WndClass;
 	g_hInst = hInstance;
 
-	// À©¼Ó ÃÊ±âÈ­
+	// ìœˆì† ì´ˆê¸°í™”
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 		return 1;
@@ -61,7 +63,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 		WndClass.style = CS_HREDRAW | CS_VREDRAW;
 		RegisterClass(&WndClass);
 	}
-	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW, 0, 0, 1016, 779, NULL, (HMENU)NULL, hInstance, NULL);		//--- À©µµ¿ì Å©±â º¯°æ °¡´É
+	hWnd = CreateWindow(lpszClass, lpszClass, WS_OVERLAPPEDWINDOW, 0, 0, 1016, 779, NULL, (HMENU)NULL, hInstance, NULL);		//--- ìœˆë„ìš° í¬ê¸° ë³€ê²½ ê°€ëŠ¥
 	ShowWindow(hWnd, nCmdShow);
 
 	while (GetMessage(&Message, 0, 0, 0)) {
@@ -109,7 +111,7 @@ BOOL P1Power, P2Power;
 BOOL P1Crash, P2Crash;
 BOOL KeyBuffer[256] = { FALSE };
 
-HANDLE enterEvent = CreateEvent(NULL, FALSE, FALSE, NULL); // Ä³¸¯ÅÍ¼±ÅÃ -> ÀÎ°ÔÀÓ ³Ñ¾î°¥ ¶§±îÁö µ¿±âÈ­ ÇÊ¿ä
+HANDLE enterEvent = CreateEvent(NULL, FALSE, FALSE, NULL); // ìºë¦­í„°ì„ íƒ -> ì¸ê²Œì„ ë„˜ì–´ê°ˆ ë•Œê¹Œì§€ ë™ê¸°í™” í•„ìš”
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 {
@@ -204,7 +206,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 						KillTimer(hWnd, 2);
 						KillTimer(hWnd, 5);
 						PlaySound(L"sound\\whistle.wav", NULL, SND_ASYNC);
-						SceneNum = 4; // ¼­¹ö¿¡¼­ ¾À º¯È¯ ¹× Å¸ÀÌ¸Ó °ü¸® ÇÊ¿ä
+						SceneNum = 4; // ì„œë²„ì—ì„œ ì”¬ ë³€í™˜ ë° íƒ€ì´ë¨¸ ê´€ë¦¬ í•„ìš”
 					}
 				}
 			}
@@ -367,29 +369,29 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 
-			P2 = new Canada(2); // ÀÓ½Ã·Î 2P Ä³¸¯ÅÍ Ä³³ª´Ù·Î ¼³Á¤
-			P3 = new Italy(3);	// ÀÓ½Ã·Î 3P Ä³¸¯ÅÍ Ä³³ª´Ù·Î ¼³Á¤
+			P2 = new Canada(2); // ì„ì‹œë¡œ 2P ìºë¦­í„° ìºë‚˜ë‹¤ë¡œ ì„¤ì •
+			P3 = new Italy(3);	// ì„ì‹œë¡œ 3P ìºë¦­í„° ìºë‚˜ë‹¤ë¡œ ì„¤ì •
 
 			if (sqrt(pow(500 - mouse.x, 2) + pow(530 - mouse.y, 2)) <= 110) {
 				PlayerReady = TRUE;
-				CreateThread(NULL, 0, CommunicateToServer, NULL, 0, NULL); // ¼­¹ö¿Í Åë½Å ½ÃÀÛ
+				CreateThread(NULL, 0, CommunicateToServer, NULL, 0, NULL); // ì„œë²„ì™€ í†µì‹  ì‹œì‘
 
-				//SceneNum = 3; // ¼­¹ö¿¡¼­ ¾À º¯È¯ÇÏ¹Ç·Î ÁÖ¼® Ã³¸®
+				//SceneNum = 3; // ì„œë²„ì—ì„œ ì”¬ ë³€í™˜í•˜ë¯€ë¡œ ì£¼ì„ ì²˜ë¦¬
 				DeleteSelBG();
 				SetTimer(hWnd, 1, 1000, NULL);
 				SetTimer(hWnd, 4, 1000, NULL);
 				SetTimer(hWnd, 5, 10, NULL);
 			}
-			// ¼­¹ö¿¡¼­ ¾ÀÁ¤º¸ ¹ŞÀ»¶§±îÁö ´ë±â
+			// ì„œë²„ì—ì„œ ì”¬ì •ë³´ ë°›ì„ë•Œê¹Œì§€ ëŒ€ê¸°
 			WaitForSingleObject(enterEvent, INFINITE);
 			break;
 
 		case 4:
-			if (sqrt(pow(500 - mouse.x, 2) + pow(320 - mouse.y, 2)) <= 100) { //´Ù½ÃÇÏ±â ¹öÆ°(ÇÊ¿äÇÏ¸é ¼­¹ö¿¡¼­ ±¸ÇöÇØ¾ßµÊ.)
+			if (sqrt(pow(500 - mouse.x, 2) + pow(320 - mouse.y, 2)) <= 100) { //ë‹¤ì‹œí•˜ê¸° ë²„íŠ¼(í•„ìš”í•˜ë©´ ì„œë²„ì—ì„œ êµ¬í˜„í•´ì•¼ë¨.)
 				PlayerReady = FALSE;
 				SceneNum = 2;
 
-				//ÀÌÇÏ ºÎºĞÀº ¼­¹ö¿¡¼­ Ã³¸® ÇÊ¿ä
+				//ì´í•˜ ë¶€ë¶„ì€ ì„œë²„ì—ì„œ ì²˜ë¦¬ í•„ìš”
 				Timer_M = 1;
 				Timer_S = 0;
 				ball.Reset();
@@ -579,19 +581,19 @@ BOOL CALLBACK Dialog_Proc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	return FALSE;
 }
 
-// ¼­¹ö¿Í Åë½ÅÇÏ´Â ½º·¹µå ÇÔ¼ö
-DWORD WINAPI CommunicateToServer(LPVOID arg) // ¼­¹ö CommunicateToClient ½º·¹µå ÇÔ¼ö¿Í Åë½Å
+// ì„œë²„ì™€ í†µì‹ í•˜ëŠ” ìŠ¤ë ˆë“œ í•¨ìˆ˜
+DWORD WINAPI CommunicateToServer(LPVOID arg) // ì„œë²„ CommunicateToClient ìŠ¤ë ˆë“œ í•¨ìˆ˜ì™€ í†µì‹ 
 {
 	int retval;
 
-	// ¼ÒÄÏ »ı¼º
+	// ì†Œì¼“ ìƒì„±
 	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == INVALID_SOCKET) err_quit("socket()");
 
 	DWORD optval = 1;
 	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&optval, sizeof(optval));
 
-	// ¼­¹ö ÁÖ¼Ò ¼³Á¤
+	// ì„œë²„ ì£¼ì†Œ ì„¤ì •
 	struct sockaddr_in serveraddr;
 	memset(&serveraddr, 0, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
@@ -601,28 +603,28 @@ DWORD WINAPI CommunicateToServer(LPVOID arg) // ¼­¹ö CommunicateToClient ½º·¹µå 
 	// connect()
 	retval = connect(sock, (struct sockaddr*)&serveraddr, sizeof(serveraddr));
 	if (retval == SOCKET_ERROR) err_quit("connect()");
-	printf("[Å¬¶óÀÌ¾ğÆ®] ¼­¹ö ¿¬°á ¼º°ø!\n");
+	printf("[í´ë¼ì´ì–¸íŠ¸] ì„œë²„ ì—°ê²° ì„±ê³µ!\n");
 
 	Player players[MAX_PLAYER];
 	BallPacket ballPacket{ 500, 300 };
 
 	if (SceneNum == 2) {
-		//ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ ¼Û½Å
+		//í”Œë ˆì´ì–´ ì¤€ë¹„ ìƒíƒœ ì†¡ì‹ 
 		retval = send(sock, (char*)&PlayerReady, sizeof(bool), 0);
 		if (retval == SOCKET_ERROR) err_quit("send() - PlayerReady");
-		//printf("[Å¬¶óÀÌ¾ğÆ®] ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ Àü¼Û ¿Ï·á: %s\n", PlayerReady ? "ÁØºñµÊ" : "ÁØºñ ¾ÈµÊ");
+		//printf("[í´ë¼ì´ì–¸íŠ¸] í”Œë ˆì´ì–´ ì¤€ë¹„ ìƒíƒœ ì „ì†¡ ì™„ë£Œ: %s\n", PlayerReady ? "ì¤€ë¹„ë¨" : "ì¤€ë¹„ ì•ˆë¨");
 
-		// ¾À ³Ñ¹ö ¼ö½Å
+		// ì”¬ ë„˜ë²„ ìˆ˜ì‹ 
 		retval = recv(sock, (char*)&SceneNum, sizeof(int), 0);
 		if (retval == SOCKET_ERROR) err_quit("recv() - SceneNum");
 		SetEvent(enterEvent);
 	}
-	DebugLog("½ÃÀÛ\n");
+	DebugLog("ì‹œì‘\n");
 
 	while (1) {
 		if (SceneNum == 3) {
-			//Å°º¸µå ÀÔ·Â °ª ¼Û½Å
-			char inputFlag = 0; // °¢ºñÆ®º°·Î ÀÔ·Â°ªÀ» ³ªÅ¸³¿
+			//í‚¤ë³´ë“œ ì…ë ¥ ê°’ ì†¡ì‹ 
+			char inputFlag = 0; // ê°ë¹„íŠ¸ë³„ë¡œ ì…ë ¥ê°’ì„ ë‚˜íƒ€ëƒ„
             if (KeyBuffer['A'] || KeyBuffer['a'] || KeyBuffer[VK_LEFT]) {
 				inputFlag |= 1; 
 			}
@@ -632,21 +634,21 @@ DWORD WINAPI CommunicateToServer(LPVOID arg) // ¼­¹ö CommunicateToClient ½º·¹µå 
             send(sock, &inputFlag, sizeof(inputFlag), 0);
 			
 			
-			//°ø, ÇÃ·¹ÀÌ¾îµé ÁÂÇ¥ ¼ö½Å
-			recv(sock, (char*)players, sizeof(Player) * MAX_PLAYER, MSG_WAITALL); // inputFlag°ª ¹«½Ã
+			//ê³µ, í”Œë ˆì´ì–´ë“¤ ì¢Œí‘œ ìˆ˜ì‹ 
+			recv(sock, (char*)players, sizeof(Player) * MAX_PLAYER, MSG_WAITALL); // inputFlagê°’ ë¬´ì‹œ
 			P1->SetPos(players[0].x, players[0].y);
 			P2->SetPos(players[1].x, players[1].y);
 			P3->SetPos(players[2].x, players[2].y);
 			recv(sock, (char*)&ballPacket, sizeof(BallPacket), MSG_WAITALL);
 			ball.SetPos(ballPacket.x, ballPacket.y);
-			//Á¡¼ö ¼ö½Å
-			//°ÔÀÓ ½Ã°£ ¼ö½Å
+			//ì ìˆ˜ ìˆ˜ì‹ 
+			//ê²Œì„ ì‹œê°„ ìˆ˜ì‹ 
 		}
 
 		else if (SceneNum == 4) {
-			// ÃÖÁ¾ Á¡¼ö ¼ö½Å
+			// ìµœì¢… ì ìˆ˜ ìˆ˜ì‹ 
 			
-			//¼­¹ö¿Í Åë½Å Á¾·á
+			//ì„œë²„ì™€ í†µì‹  ì¢…ë£Œ
 			closesocket(sock);
 			return 0;
 		}
