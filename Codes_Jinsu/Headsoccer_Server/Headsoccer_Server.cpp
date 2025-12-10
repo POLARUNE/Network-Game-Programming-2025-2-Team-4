@@ -1,5 +1,5 @@
 #include "..\Common.h"
-#include <thread>
+
 #define SERVERPORT 9000
 #define BUFSIZE    512
 #define MAX_PLAYER 1
