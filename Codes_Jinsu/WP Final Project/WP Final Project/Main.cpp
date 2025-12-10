@@ -2,7 +2,6 @@
 #include <atlimage.h>
 #include <math.h>
 
-
 #include "BACKGROUND.h"
 #include "BALL.h"
 #include "CHARACTER.h"
@@ -23,7 +22,8 @@
 
 #define SERVERPORT 9000
 #define BUFSIZE    512
-#define SERVERIP   "127.0.0.1"
+
+char SERVERIP[64] = "127.0.0.1";
 
 HINSTANCE g_hInst;
 TCHAR lpszClass[] = TEXT("HEAD SOCCER");
@@ -36,6 +36,8 @@ void LOOP(HWND, BOOL KB[]);
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nCmdShow)
 {
+	strcpy(SERVERIP, lpszCmdParam);
+
 	HWND hWnd;
 	MSG Message;
 	WNDCLASS WndClass;
