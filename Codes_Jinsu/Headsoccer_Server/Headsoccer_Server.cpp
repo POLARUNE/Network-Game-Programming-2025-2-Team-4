@@ -1,22 +1,33 @@
 #include "..\Common.h"
-
+#include <thread>
 #define SERVERPORT 9000
 #define BUFSIZE    512
-#define MAX_PLAYER 3
+#define MAX_PLAYER 1
 
 LONG PlayerNum = -1;                 // Interlocked¸¦ À§ÇØ LONG Å¸ÀÔ
 
+//ÇÊ¿äÇÑ º¯¼ö ¼±¾ð
 int sceneNum; //¾À ¹øÈ£
+bool IsReady[MAX_PLAYER]; // ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ
+bool AllReady; // ¸ðµç ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ
+bool SceneNumPrintOnce[MAX_PLAYER] = {};
+bool IsReadyPrintOnce[MAX_PLAYER] = {};
+
 
 struct ThreadParam {
     SOCKET sock;
     int playerNum;
 };
 
-int GivePlayerNum()
+int GivePlayerNum(volatile LONG* p)
 {
-    // Thread-safe Áõ°¡
-    return (int)InterlockedIncrement(&PlayerNum);
+    // Thread-safe ¼øÈ¯ ¿¬»ê
+    LONG old, next;
+    do {
+        old = *p;
+        next = (old + 1) > 2 ? 0 : (old + 1);
+    } while (InterlockedCompareExchange(p, next, old) != old);
+    return (int)next;
 }
 
 DWORD WINAPI CommunicateToClient(LPVOID arg) // Å¬¶óÀÌ¾ðÆ® CommunicateToServer ½º·¹µå ÇÔ¼ö¿Í Åë½Å
@@ -38,28 +49,49 @@ DWORD WINAPI CommunicateToClient(LPVOID arg) // Å¬¶óÀÌ¾ðÆ® CommunicateToServer ½
     printf("\n[TCP ¼­¹ö] Å¬¶óÀÌ¾ðÆ® Á¢¼Ó - IP ÁÖ¼Ò: %s, Æ÷Æ® ¹øÈ£: %d, ÇÃ·¹ÀÌ¾î ¹øÈ£: %d\n",
         addr, ntohs(clientaddr.sin_port), myPlayerNum);
 
-    //ÇÊ¿äÇÑ º¯¼ö ¼±¾ð
-	bool PlayerReady; // ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ
-	bool AllplayerReady; // ¸ðµç ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ
+
+
     //Å°º¸µå ÀÔ·Â °ª, Á¡¼ö, ÁÂÇ¥ µîµî ¼Û¼ö½Å¿¡ ÇÊ¿äÇÑ º¯¼ö Ãß°¡ ¼±¾ð ÇÊ¿ä
 
     while (1) {
+        //¾À ³Ñ¹ö ¼Û½Å
+        retval = send(client_sock, (char*)&sceneNum, sizeof(int), 0);
+        if (retval == SOCKET_ERROR) { err_display("send()"); }
+        else {
+            if (!SceneNumPrintOnce[myPlayerNum]) {
+                printf("[¼­¹ö] ÇÃ·¹ÀÌ¾î %d¿¡°Ô ¾À ¹øÈ£ Àü¼Û: %d\n", myPlayerNum, sceneNum);
+                SceneNumPrintOnce[myPlayerNum] = true; //ÇÑ ¹ø¸¸ Ãâ·ÂµÇµµ·Ï ¼³Á¤
+			}
+        }
+
         if (sceneNum == 2) {    //Ä³¸¯ÅÍ ¼±ÅÃ ¾À
             // ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ ¼ö½Å
-            retval = recv(client_sock, (char*)&PlayerReady, sizeof(bool), MSG_WAITALL);
-
-            printf("[¼­¹ö] ÇÃ·¹ÀÌ¾î %d ÁØºñ »óÅÂ: %s\n", myPlayerNum, PlayerReady ? "ÁØºñ ¿Ï·á" : "ÁØºñ ¹Ì¿Ï·á");
-
-			//¸ðµç ÇÃ·¹ÀÌ¾îÀÇ ÁØºñ ¿Ï·á »óÅÂ È®ÀÎ (¿©±â¼­´Â °£´ÜÈ÷ Ã³¸®)
-
-			if (PlayerReady) { //¸ðµç ÇÃ·¹ÀÌ¾î°¡ ÁØºñ ¿Ï·á »óÅÂ¶ó°í °¡Á¤
-                sceneNum = 3; //°ÔÀÓ ½ÃÀÛ ¾ÀÀ¸·Î º¯°æ
-            }
-            //¾À ³Ñ¹ö ¼Û½Å
-            retval = send(client_sock, (char*)&sceneNum, sizeof(int), 0);
-            if (retval == SOCKET_ERROR) { err_display("send()"); }
+            retval = recv(client_sock, (char*)&IsReady[myPlayerNum], sizeof(bool), MSG_WAITALL);
+            if (retval == SOCKET_ERROR) { err_display("recv()"); }
             else {
-                printf("[¼­¹ö] ÇÃ·¹ÀÌ¾î %d¿¡°Ô ¾À ¹øÈ£ Àü¼Û: %d\n", myPlayerNum, sceneNum);
+                if(IsReady[myPlayerNum] != IsReadyPrintOnce[myPlayerNum]) {
+                    printf("[¼­¹ö] ÇÃ·¹ÀÌ¾î %d·ÎºÎÅÍ ÁØºñ »óÅÂ ¼ö½Å: %s\n", myPlayerNum, IsReady[myPlayerNum] ? "ÁØºñ ¿Ï·á" : "ÁØºñ ¹Ì¿Ï·á");
+                    IsReadyPrintOnce[myPlayerNum] = IsReady[myPlayerNum]; //ÇÑ ¹ø¸¸ Ãâ·ÂµÇµµ·Ï ¼³Á¤
+				}
+			}
+            
+			//¸ðµç ÇÃ·¹ÀÌ¾îÀÇ ÁØºñ ¿Ï·á »óÅÂ È®ÀÎ
+			AllReady = true; // ÀÏ´Ü ¸ðµç ÇÃ·¹ÀÌ¾î°¡ ÁØºñ ¿Ï·á¶ó°í °¡Á¤
+            for (int i = 0; i < MAX_PLAYER; i++) {
+                if (!IsReady[i]) {
+                    sceneNum = 2; //¾ÆÁ÷ ÁØºñ ¾ÈµÈ ÇÃ·¹ÀÌ¾î°¡ ÀÖÀ¸¸é Ä³¸¯ÅÍ ¼±ÅÃ ¾À À¯Áö
+					AllReady = false; // AllReadyµµ false À¯Áö
+                    break;
+				}
+            }
+
+            //¸ðµç ÇÃ·¹ÀÌ¾î ÁØºñ ¿Ï·á »óÅÂ ¼Û½Å
+            retval = send(client_sock, (char*)&AllReady, sizeof(bool), 0);
+            if (retval == SOCKET_ERROR) { err_display("send()"); }
+
+            if (AllReady) {
+                printf("¸ðµç ÇÃ·¹ÀÌ¾î ÁØºñ ¿Ï·á\n");
+                sceneNum = 3; //¸ðµç ÇÃ·¹ÀÌ¾î°¡ ÁØºñ ¿Ï·á¸é °ÔÀÓ ½ÃÀÛ ¾ÀÀ¸·Î º¯°æ
             }
         }
 
@@ -75,12 +107,8 @@ DWORD WINAPI CommunicateToClient(LPVOID arg) // Å¬¶óÀÌ¾ðÆ® CommunicateToServer ½
             //°ÔÀÓ ½Ã°£ ¼Û½Å
 
             //¸¸¾à °ÔÀÓ ½Ã°£ÀÌ Á¾·áµÇ¾úÀ¸¸é (Å¬¶óÀÌ¾ðÆ® WM_TIMER ºÎºÐ Âü°í)
-			//sceneNum = 4; Á¾·á ¾ÀÀ¸·Î º¯°æ
+			//sceneNum = 4; //Á¾·á ¾ÀÀ¸·Î º¯°æ
 
-            //Å×½ºÆ® ÄÚµå
-			//6ÃÊ ±â´Ù¸®°í ¹Ù·Î Á¾·á ¾ÀÀ¸·Î º¯°æ
-			Sleep(6000);
-			sceneNum = 4;
         }
 
         else if (sceneNum == 4) {   //°ÔÀÓ Á¾·á ¾À
@@ -90,13 +118,24 @@ DWORD WINAPI CommunicateToClient(LPVOID arg) // Å¬¶óÀÌ¾ðÆ® CommunicateToServer ½
                 // ball À§Ä¡ ÃÊ±âÈ­
                 // killTimer
                 
-            // °ÔÀÓ Á¾·áÇÏ¸é
             // Å¬¶óÀÌ¾ðÆ® Á¢¼Ó Á¾·á
 			printf("[¼­¹ö] ÇÃ·¹ÀÌ¾î %d Á¢¼Ó Á¾·á\n", myPlayerNum);
+            
+            //¸ðµç ÇÃ·¹ÀÌ¾îÀÇ ÁØºñ ¿Ï·á »óÅÂ È®ÀÎ
+            for (int i = 0; i < MAX_PLAYER; i++) {
+                if (IsReady[i]) {
+                    sceneNum = 4; // °ÔÀÓÀ» Á¾·áÇÏÁö ¾ÊÀº ÇÃ·¹ÀÌ¾î°¡ ÀÖÀ¸¸é ¾À ³Ñ¹ö À¯Áö
+                    break;
+                }
+				AllReady = false; // ¸ðµç ÇÃ·¹ÀÌ¾î°¡ °ÔÀÓÀ» Á¾·áÇßÀ¸¸é AllReady ÃÊ±âÈ­
+                sceneNum = 2; //¸ðµç ÇÃ·¹ÀÌ¾î°¡ °ÔÀÓÀ» Á¾·áÇßÀ¸¸é ¾À ³Ñ¹ö ÃÊ±âÈ­
+				printf("[¼­¹ö] ¸ðµç ÇÃ·¹ÀÌ¾î Á¢¼Ó Á¾·á, ¾À ¹øÈ£ ÃÊ±âÈ­\n");
+            }
             break;
 		}
     }
- 
+    
+	printf("¼­¹ö ½º·¹µå Á¾·á\n");
     closesocket(client_sock);
     delete p;   // ÇÒ´çµÈ ±¸Á¶Ã¼ ¸Þ¸ð¸® ÇØÁ¦
 
@@ -107,7 +146,8 @@ DWORD WINAPI CommunicateToClient(LPVOID arg) // Å¬¶óÀÌ¾ðÆ® CommunicateToServer ½
 int main(void)
 {
     int retval;
-	sceneNum = 2; //Ä³¸¯ÅÍ ¼±ÅÃ È­¸é
+	sceneNum = 3; //Ä³¸¯ÅÍ ¼±ÅÃ È­¸é
+	//AllReady = false; // ¸ðµç ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ ÃÊ±âÈ­
 
     // À©¼Ó ÃÊ±âÈ­
     WSADATA wsa;
@@ -147,10 +187,13 @@ int main(void)
             break;
         }
 
+        DWORD optval = 1; // Nagle ¾Ë°í¸®Áò ºñÈ°¼ºÈ­
+        setsockopt(client_sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&optval, sizeof(optval));
+
         // ½º·¹µå Àü´Þ ±¸Á¶Ã¼ »ý¼º
         ThreadParam* param = new ThreadParam;
         param->sock = client_sock;
-        param->playerNum = GivePlayerNum();   // °íÀ¯ ¹øÈ£ ºÎ¿©
+        param->playerNum = GivePlayerNum(&PlayerNum);   // °íÀ¯ ¹øÈ£ ºÎ¿©
 
         // ½º·¹µå »ý¼º
         HANDLE hThread = CreateThread(NULL, 0, CommunicateToClient, param, 0, NULL);

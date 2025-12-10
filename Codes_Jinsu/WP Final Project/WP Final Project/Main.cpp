@@ -96,6 +96,7 @@ BOOL Goal1, Goal2;
 BOOL Pause = FALSE;
 int SceneNum = 0;
 BOOL PlayerReady = FALSE;
+BOOL AllReady = FALSE;
 
 CImage Char[2][10];
 CImage CharP1;
@@ -228,7 +229,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			if (!Pause) {
 				if (Timer_M == 1) {
 					Timer_M = 0;
-					Timer_S = 5;
+					Timer_S = 1;
 				}
 
 				else if (Timer_M == 0) {
@@ -237,7 +238,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 						KillTimer(hWnd, 2);
 						KillTimer(hWnd, 5);
 						PlaySound(L"sound\\whistle.wav", NULL, SND_ASYNC);
-						SceneNum = 4; // 서버에서 씬 변환 및 타이머 관리 필요
+						// SceneNum = 4; // 서버에서 씬 변환 및 타이머 관리 필요
 					}
 				}
 			}
@@ -348,6 +349,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 		case 1:
 			if (PtInRect(&ButtonPlay, mouse)) {
 				SceneNum = 2;
+				CreateThread(NULL, 0, CommunicateToServer, NULL, 0, NULL); // 서버와 통신 시작
+				P1 = new Canada(1); // 임시로 1P 캐릭터 캐나다로 설정
+				P2 = new Korea(2);
 			}
 
 			else if (PtInRect(&ButtonExit, mouse)) {
@@ -400,39 +404,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 
 			P2 = new Canada(2); // 임시로 2P 캐릭터 캐나다로 설정
 
-			if (sqrt(pow(500 - mouse.x, 2) + pow(530 - mouse.y, 2)) <= 110) {
-				PlayerReady = TRUE;
-				CreateThread(NULL, 0, CommunicateToServer, NULL, 0, NULL); // 서버와 통신 시작
-
-				//SceneNum = 3; // 서버에서 씬 변환하므로 주석 처리
-				DeleteSelBG();
-				SetTimer(hWnd, 1, 1000, NULL);
-				SetTimer(hWnd, 4, 1000, NULL);
-				SetTimer(hWnd, 5, 10, NULL);
+			if (sqrt(pow(500 - mouse.x, 2) + pow(530 - mouse.y, 2)) <= 110) { // 준비 버튼을 누르면
+				PlayerReady = !PlayerReady;
 			}
 
 			break;
 
 		case 4:
 			if (sqrt(pow(500 - mouse.x, 2) + pow(320 - mouse.y, 2)) <= 100) { //다시하기 버튼(필요하면 서버에서 구현해야됨.)
-				PlayerReady = FALSE;
-				SceneNum = 2;
+				//PlayerReady = FALSE;
+				//SceneNum = 2; // 서버에서 씬 변환하므로 주석 처리
 
-				//이하 부분은 서버에서 처리 필요
-				Timer_M = 1;
-				Timer_S = 0;
-				ball.Reset();
-				DeleteResBG();
-				delete P1;
-				delete P2;
-				KillTimer(hWnd, 2);
-				KillTimer(hWnd, 3);
-				KillTimer(hWnd, 4);
-				KillTimer(hWnd, 5);
-				PlaySound(L"sound\\bgm.wav", NULL, SND_ASYNC | SND_LOOP);
+				////이하 부분은 서버에서 처리 필요
+				//Timer_M = 1;
+				//Timer_S = 0;
+				//ball.Reset();
+				//DeleteResBG();
+				//delete P1;
+				//delete P2;
+				//KillTimer(hWnd, 2);
+				//KillTimer(hWnd, 3);
+				//KillTimer(hWnd, 4);
+				//KillTimer(hWnd, 5);
+				//PlaySound(L"sound\\bgm.wav", NULL, SND_ASYNC | SND_LOOP);
 			}
 
 			else if (sqrt(pow(500 - mouse.x, 2) + pow(570 - mouse.y, 2)) <= 100) {
+				PlayerReady = FALSE;
 				DeleteResBG();
 				delete P1;
 				delete P2;
@@ -470,6 +468,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT iMessage, WPARAM wParam, LPARAM lParam)
 			break;
 
 		case 3:
+			if (AllReady) {
+				DeleteSelBG();
+				AllReady = false;
+			}
+
 			DrawBG(memdc);
 
 			P1->UI_Print(memdc, 1);
@@ -614,6 +617,9 @@ DWORD WINAPI CommunicateToServer(LPVOID arg) // 서버 CommunicateToClient 스레드 
 	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
 	if (sock == INVALID_SOCKET) err_quit("socket()");
 
+	DWORD optval = 1; // Nagle 알고리즘 비활성화
+	setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&optval, sizeof(optval));
+
 	// 서버 주소 설정
 	struct sockaddr_in serveraddr;
 	memset(&serveraddr, 0, sizeof(serveraddr));
@@ -626,16 +632,21 @@ DWORD WINAPI CommunicateToServer(LPVOID arg) // 서버 CommunicateToClient 스레드 
 	if (retval == SOCKET_ERROR) err_quit("connect()");
 	printf("[클라이언트] 서버 연결 성공!\n");
 
+
 	while (1) {
+		// 씬 넘버 수신
+		retval = recv(sock, (char*)&SceneNum, sizeof(int), 0);
+		if (retval == SOCKET_ERROR) err_quit("recv() - SceneNum");
+
 		if (SceneNum == 2) {
 			//플레이어 준비 상태 송신
 			retval = send(sock, (char*)&PlayerReady, sizeof(bool), 0);
 			if (retval == SOCKET_ERROR) err_quit("send() - PlayerReady");
 			//printf("[클라이언트] 플레이어 준비 상태 전송 완료: %s\n", PlayerReady ? "준비됨" : "준비 안됨");
 
-			// 씬 넘버 수신
-			retval = recv(sock, (char*)&SceneNum, sizeof(int), 0);
-			if (retval == SOCKET_ERROR) err_quit("recv() - SceneNum");
+			//모든 플레이어 준비 상태 수신
+			retval = recv(sock, (char*)&AllReady, sizeof(bool), 0);
+			if (retval == SOCKET_ERROR) err_quit("recv() - AllReady");
 		}
 
 		else if (SceneNum == 3) {
@@ -649,6 +660,10 @@ DWORD WINAPI CommunicateToServer(LPVOID arg) // 서버 CommunicateToClient 스레드 
 		else if (SceneNum == 4) {
 			// 최종 점수 수신
 			
+			//플레이어 준비 상태 송신
+			retval = send(sock, (char*)&PlayerReady, sizeof(bool), 0);
+			if (retval == SOCKET_ERROR) err_quit("send() - PlayerReady");
+
 			//서버와 통신 종료
 			closesocket(sock);
 			return 0;
